@@ -1,0 +1,37 @@
+# Segredos e credenciais — NUNCA commitar
+.env
+.env.*
+!.env.example
+wallet/
+*.zip
+*.p12
+*.jks
+*.sso
+*.pem
+cwallet.sso
+tnsnames.ora
+sqlnet.ora
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Artefatos gerados
+relatorio_*.csv
+relatorio_*.xlsx
+*.log
+
+# SO / editor
+.DS_Store
+.idea/
+.vscode/

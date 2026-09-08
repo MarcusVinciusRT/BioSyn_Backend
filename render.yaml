@@ -1,0 +1,96 @@
+# Blueprint do Render. Em New > Blueprint, aponte para este repositorio e o
+# Render cria o servico com esta configuracao.
+#
+# ATENCAO: os valores marcados com `sync: false` NAO ficam no repositorio --
+# voce preenche no painel do Render, uma vez, no primeiro deploy. E por isso que
+# senha de banco, senha do wallet e chave JWT nao aparecem aqui.
+
+services:
+  - type: web
+    name: biosyn-backend
+    runtime: python
+    plan: free
+    region: oregon
+    healthCheckPath: /api/v1/health
+
+    # Desligado de proposito. O deploy e disparado pelo GitHub Actions, depois
+    # que os testes passam (.github/workflows/ci.yml). Com autoDeploy ligado, o
+    # Render publicaria direto no push -- inclusive com a suite quebrada.
+    autoDeploy: false
+
+    buildCommand: pip install -r requirements.txt
+    # $PORT e injetado pelo Render. --proxy-headers faz o IP real do cliente
+    # chegar ate o limitador de tentativas de login; sem ele, todas as
+    # tentativas contam como vindas do balanceador.
+    startCommand: >-
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+      --proxy-headers --forwarded-allow-ips '*'
+
+    envVars:
+      - key: PYTHON_VERSION
+        # 3.14 nao tem wheel de pydantic-core e a compilacao falha no build.
+        value: "3.13.15"
+
+      - key: AMBIENTE
+        # "homolog" mantem /docs aberto para o time de front consultar.
+        # Troque para "prod" quando a API for publica de verdade.
+        value: homolog
+      - key: LOG_LEVEL
+        value: INFO
+
+      # --- Oracle ADB ---
+      - key: DB_USER
+        value: APP_BACKEND
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DSN
+        value: dbdatasus_medium
+      # Secret Files do Render sao montados aqui.
+      - key: WALLET_DIR
+        value: /etc/secrets
+      - key: WALLET_PASSWORD
+        sync: false
+      - key: DB_POOL_MIN
+        value: "1"
+      - key: DB_POOL_MAX
+        value: "4"
+
+      # --- JWT ---
+      # Gere uma chave NOVA para producao, diferente da local:
+      #   python -c "import secrets; print(secrets.token_urlsafe(48))"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRA_SEGUNDOS
+        value: "1800"
+
+      # --- Alertas por e-mail ---
+      - key: ALERTA_CANAL
+        value: smtp
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORTA
+        value: "587"
+      - key: SMTP_SEGURANCA
+        value: starttls
+      - key: SMTP_USUARIO
+        sync: false
+      - key: SMTP_SENHA
+        sync: false
+      - key: SMTP_REMETENTE
+        sync: false
+      - key: SMTP_REMETENTE_NOME
+        value: BioSyn
+
+      # --- Relatorios e chat ---
+      - key: LAKEHOUSE_MODO
+        value: fallback
+      - key: AI_PROFILE_NAME
+        value: APP_PROFILE
+      - key: AI_TIMEOUT_SEGUNDOS
+        value: "45"
+
+      # --- CORS ---
+      # Preencha no painel com a origem do front, separada por virgula.
+      # Ex: https://biosyn-front.vercel.app,http://localhost:5173
+      - key: CORS_ORIGENS
+        sync: false

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Um deploy por vez: se dois pushes entrarem juntos, o segundo cancela o
+# primeiro em vez de os dois disputarem o mesmo servico no Render.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    name: Testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          # 3.14 nao tem wheel de pydantic-core e a compilacao falha.
+          python-version-file: .python-version
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Rodar a suite
+        # -m "not banco": o runner nao tem wallet nem acesso ao Oracle. Os
+        # testes marcados com `banco` rodam na maquina de quem tem o wallet.
+        run: pytest -q -m "not banco"
+        env:
+          # O app exige estas variaveis para importar. Valores de mentira: os
+          # testes deste conjunto nao abrem conexao.
+          DB_USER: TESTE
+          DB_PASSWORD: teste
+          DB_DSN: teste_dsn
+          JWT_SECRET: segredo-de-ci-nao-usar-em-producao
+
+  deploy:
+    name: Deploy no Render
+    needs: testes
+    # So a main, so em push (nunca em pull request), e so com os testes verdes.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar o deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::O segredo RENDER_DEPLOY_HOOK nao esta configurado."
+            echo "Crie em: Settings > Secrets and variables > Actions > New repository secret"
+            echo "O valor sai do painel do Render, em Settings > Deploy Hook."
+            exit 1
+          fi
+          # -f: falha se o Render devolver erro HTTP, para o job nao passar em
+          # falso quando o hook estiver invalido.
+          curl -fsS -X POST "$HOOK" && echo "Deploy solicitado ao Render."
