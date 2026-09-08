@@ -23,7 +23,7 @@ def metrica(**mudancas) -> Metrica:
         "id_metrica": 1,
         "nome_metrica": "Internações totais",
         "nome_view": "VW_INTERNACOES_TOTAL",
-        "coluna_filtro": "UF",
+        "coluna_filtro": "ESTADO",
         "descricao": "x",
         "unidade": "numero",
         "ativo": True,
@@ -72,11 +72,15 @@ def test_filtro_com_tentativa_de_injecao_nao_toca_no_sql():
 
 # --- Tradução de UF --------------------------------------------------------
 
-def test_sigla_de_uf_vira_o_nome_usado_no_lakehouse():
-    """A coluna UF de GOLD.INTERNACOES guarda "SAO PAULO", mas o contrato
-    exemplifica o filtro como "SP". Sem traduzir, o relatório daria zero calado."""
-    assert _normalizar_filtro("UF", "SP") == "SAO PAULO"
-    assert _normalizar_filtro("UF", "df") == "DISTRITO FEDERAL"
+@pytest.mark.parametrize("coluna", ["UF", "ESTADO", "estado"])
+def test_sigla_de_estado_vira_o_nome_usado_no_lakehouse(coluna):
+    """A coluna guarda "SAO PAULO", mas o contrato exemplifica o filtro como
+    "SP". Sem traduzir, o relatório daria zero calado.
+
+    Aceita UF e ESTADO: a coluna foi renomeada em 2026-09-08 quando o schema
+    GOLD foi recriado."""
+    assert _normalizar_filtro(coluna, "SP") == "SAO PAULO"
+    assert _normalizar_filtro(coluna, "df") == "DISTRITO FEDERAL"
 
 
 def test_todas_as_ufs_tem_traducao():
@@ -84,10 +88,10 @@ def test_todas_as_ufs_tem_traducao():
 
 
 def test_valor_desconhecido_passa_intacto():
-    assert _normalizar_filtro("UF", "SAO PAULO") == "SAO PAULO"
+    assert _normalizar_filtro("ESTADO", "SAO PAULO") == "SAO PAULO"
 
 
-def test_traducao_so_vale_para_a_coluna_uf():
+def test_traducao_nao_vale_para_outras_colunas():
     assert _normalizar_filtro("MUNICIPIO", "SP") == "SP"
 
 

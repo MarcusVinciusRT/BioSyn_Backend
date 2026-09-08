@@ -165,9 +165,13 @@ O documento original é a referência; onde nos afastamos dele, foi por um motiv
 
 ## Limitações conhecidas
 
-- **Acesso a `GOLD.INTERNACOES` revogado** (constatado em 2026-09-08). Sem ele
-  `POST /relatorios` responde `502 FALHA_LAKEHOUSE`. Um ADMIN do banco restaura
-  rodando `scripts/grants_gold.sql`.
+- **O schema `GOLD` é recriado periodicamente** e isso derruba o `SELECT` do
+  backend. Quando `POST /relatorios` responder `502 FALHA_LAKEHOUSE`, um ADMIN
+  restaura rodando `scripts/grants_gold.sql`. Na recriação de 2026-09-08 a
+  coluna `UF` virou `ESTADO` — o nome da coluna vive em `METRICAS.coluna_filtro`,
+  então uma renomeação dessas se resolve com um `UPDATE`, sem mexer em código.
+  Surgiram também `GOLD.LEITOS` e `GOLD.OBITOS`, ainda não usadas por métrica
+  nenhuma.
 - **Select AI indisponível no ambiente atual.** O profile `APP_PROFILE` está
   correto (provider OCI, modelo `cohere.command-a-03-2025`, região
   `sa-saopaulo-1`), mas a chamada trava sem retornar erro — falha também no SQL

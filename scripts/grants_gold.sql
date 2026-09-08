@@ -4,7 +4,10 @@
 -- RODE COMO ADMIN (nao como APP_BACKEND).
 -- SQL Developer, SQLcl ou Database Actions no console da OCI.
 --
--- Contexto: em 2026-09-08 o backend perdeu o SELECT em GOLD.INTERNACOES.
+-- APLICADO em 2026-09-08. Mantido no repositorio porque quem montar o
+-- ambiente do zero precisa rodar isto de novo -- o README aponta para ca.
+--
+-- Contexto: o backend perdeu o SELECT quando o schema GOLD foi recriado.
 -- Sem ele, POST /relatorios responde 502 FALHA_LAKEHOUSE e o Select AI nao
 -- consegue ler a tabela do object_list do APP_PROFILE.
 -- ============================================================

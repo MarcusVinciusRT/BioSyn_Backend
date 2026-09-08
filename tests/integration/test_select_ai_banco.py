@@ -30,7 +30,7 @@ def db() -> Iterator[Session]:
 
 
 def test_contagem_de_agrupamento_bate_com_as_27_ufs(db):
-    sql = "SELECT UF, COUNT(*) FROM GOLD.INTERNACOES GROUP BY UF"
+    sql = "SELECT ESTADO, COUNT(*) FROM GOLD.INTERNACOES GROUP BY ESTADO"
     select_ai.validar_somente_leitura(sql)
     assert select_ai.contar_linhas(db, sql) == 27
 

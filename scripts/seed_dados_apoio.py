@@ -64,17 +64,17 @@ ABAS_DASHBOARD = [
 # nome_view e a chave usada tanto no modo "views" quanto no fallback sobre
 # GOLD.INTERNACOES -- ver AGREGACOES_FALLBACK em app/integrations/lakehouse.py.
 METRICAS = [
-    ("Internações totais", "VW_INTERNACOES_TOTAL", "UF",
+    ("Internações totais", "VW_INTERNACOES_TOTAL", "ESTADO",
      "Quantidade de internações no período", "numero"),
-    ("Valor total das internações", "VW_INTERNACOES_VALOR_TOTAL", "UF",
+    ("Valor total das internações", "VW_INTERNACOES_VALOR_TOTAL", "ESTADO",
      "Soma do valor total das internações, em reais", "numero"),
-    ("Valor médio por internação", "VW_INTERNACOES_VALOR_MEDIO", "UF",
+    ("Valor médio por internação", "VW_INTERNACOES_VALOR_MEDIO", "ESTADO",
      "Valor médio de cada internação, em reais", "numero"),
-    ("Permanência média", "VW_INTERNACOES_PERMANENCIA_MEDIA", "UF",
+    ("Permanência média", "VW_INTERNACOES_PERMANENCIA_MEDIA", "ESTADO",
      "Média de dias de permanência hospitalar", "numero"),
-    ("Idade média dos internados", "VW_INTERNACOES_IDADE_MEDIA", "UF",
+    ("Idade média dos internados", "VW_INTERNACOES_IDADE_MEDIA", "ESTADO",
      "Idade média dos pacientes internados, em anos", "numero"),
-    ("Taxa de alta complexidade", "VW_INTERNACOES_TAXA_ALTA_COMPLEXIDADE", "UF",
+    ("Taxa de alta complexidade", "VW_INTERNACOES_TAXA_ALTA_COMPLEXIDADE", "ESTADO",
      "Percentual de internações de alta complexidade", "percentual"),
 ]
 
