@@ -45,9 +45,14 @@ services:
         sync: false
       - key: DB_DSN
         value: dbdatasus_medium
-      # Secret Files do Render sao montados aqui.
-      - key: WALLET_DIR
-        value: /etc/secrets
+      # O wallet e segredo, esta fora do git, e o Render nao tem disco
+      # persistente para monta-lo. A saida e o .zip do wallet em base64 numa
+      # variavel: a aplicacao materializa num diretorio temporario com permissao
+      # restrita, que morre junto com o processo (ver app/db/wallet.py).
+      # Gere com:  base64 -i wallet/wallet-dbdatasus.zip | tr -d '\n'
+      # WALLET_DIR fica de fora de proposito: WALLET_BASE64 tem precedencia.
+      - key: WALLET_BASE64
+        sync: false
       - key: WALLET_PASSWORD
         sync: false
       - key: DB_POOL_MIN

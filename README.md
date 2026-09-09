@@ -102,22 +102,25 @@ O pipeline é: **push na `main` → GitHub Actions roda os testes → só se pas
 o Render publica.** O auto-deploy nativo do Render fica desligado
 (`autoDeploy: false`) justamente para que uma suíte quebrada não vá ao ar.
 
-### 1. Wallet: só dois arquivos
+### 1. Wallet: uma variável, não arquivos
 
-O wallet não vai no git, mas o driver em modo *thin* precisa de apenas dois dos
-nove arquivos — e ambos são texto puro, coláveis num formulário:
+O wallet é segredo, está fora do git, e o Render não tem disco persistente para
+montá-lo. A saída é mandar o `.zip` inteiro codificado em base64:
 
-| Arquivo | Para quê |
-|---|---|
-| `tnsnames.ora` | resolve o nome do serviço (`dbdatasus_medium`) |
-| `ewallet.pem` | certificado e chave do mTLS |
+```bash
+base64 -i wallet/wallet-dbdatasus.zip | tr -d '\n'
+```
 
-Os demais (`cwallet.sso`, `.p12`, `.jks`) são do modo *thick* e do JDBC; o
-Python não os usa. Verificado: a conexão funciona igual com os dois.
+Cole o resultado em `WALLET_BASE64` no painel do Render (são ~34 mil
+caracteres, cabe sem problema) e **deixe `WALLET_DIR` vazio** — o base64 tem
+precedência. Na inicialização a aplicação materializa o wallet num diretório
+temporário com permissão restrita, que morre junto com o processo. O código
+recusa zip com caminho suspeito e restringe as permissões dos arquivos
+extraídos (`app/db/wallet.py`).
 
-No Render, em **Settings → Secret Files**, crie os dois com esses nomes exatos.
-Eles são montados em `/etc/secrets/`, que é o valor de `WALLET_DIR` no
-`render.yaml`.
+Você **não sobe o arquivo `.env`** para lugar nenhum. O Render injeta as
+variáveis direto no ambiente do processo, e a aplicação lê de lá — o `.env` é
+só uma comodidade local, e o app roda sem ele existir.
 
 ### 2. Criar o serviço
 
