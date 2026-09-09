@@ -82,6 +82,11 @@ class Settings(BaseSettings):
     cors_origens: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: ["http://localhost:5173"]
     )
+    # Padrao para origens que mudam a cada deploy -- Vercel e Netlify criam uma
+    # URL nova por preview, e uma lista fixa quebraria em todo PR do front.
+    # O Starlette compara com fullmatch, entao o padrao ja fica ancorado.
+    # Seja especifico: r"https://.*" libera a internet inteira.
+    cors_origens_regex: str | None = None
 
     @field_validator("cors_origens", mode="before")
     @classmethod
