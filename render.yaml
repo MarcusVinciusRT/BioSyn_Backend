@@ -90,7 +90,14 @@ services:
         value: "45"
 
       # --- CORS ---
-      # Preencha no painel com a origem do front, separada por virgula.
-      # Ex: https://biosyn-front.vercel.app,http://localhost:5173
+      # Vale so para navegador: Postman, curl e o /docs nao passam por aqui.
+      # Enquanto o front roda local apontando para esta API, a origem que conta
+      # e a maquina do dev -- por isso localhost ja resolve no comeco.
+      # Quando o front publicar, acrescente a URL dele, separada por virgula.
       - key: CORS_ORIGENS
+        value: http://localhost:5173,http://localhost:3000
+      # Opcional: padrao para as URLs de preview (Vercel/Netlify criam uma nova
+      # por PR). Preencha no painel quando souber o nome do projeto do front.
+      # Ex: https://biosyn-front(-git-[a-z0-9-]+)?\.vercel\.app
+      - key: CORS_ORIGENS_REGEX
         sync: false

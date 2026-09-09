@@ -136,6 +136,30 @@ No Render, **Settings → Deploy Hook**, copie a URL. No GitHub, em
 **Settings → Secrets and variables → Actions → New repository secret**, crie
 `RENDER_DEPLOY_HOOK` com essa URL. É o único segredo que o pipeline precisa.
 
+### CORS quando o front ainda não subiu
+
+CORS é uma restrição do **navegador**, não da API: o que vale é a origem de onde
+a página está aberta, não onde a API mora. Três consequências práticas:
+
+- **Postman, curl e Insomnia ignoram CORS.** O time pode testar hoje, sem
+  configuração nenhuma.
+- **O `/docs` também funciona**, porque é servido pela própria API.
+- **Enquanto o front roda local** (`npm run dev`) apontando para a API
+  publicada, a origem é `http://localhost:5173` — que já é o padrão. Não é
+  preciso saber a URL de produção para o time começar.
+
+Quando o front publicar, acrescente a URL dele em `CORS_ORIGENS`. Se for Vercel
+ou Netlify, use também `CORS_ORIGENS_REGEX`: essas plataformas criam uma URL
+nova a cada preview, e uma lista fixa quebraria em todo PR do front.
+
+```
+CORS_ORIGENS_REGEX=https://biosyn-front(-git-[a-z0-9-]+)?\.vercel\.app
+```
+
+O padrão é comparado com `fullmatch`, então já fica ancorado nas duas pontas —
+`https://biosyn-front.vercel.app.atacante.com` não passa. Ainda assim, seja
+específico: `https://.*` libera a internet inteira.
+
 ### Detalhes que costumam derrubar o deploy
 
 - **`AMBIENTE=homolog`, não `prod`** — em `prod` a API fecha `/docs`, e é
