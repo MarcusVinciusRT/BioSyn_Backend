@@ -69,14 +69,20 @@ def _validar_identificador(valor: str, rotulo: str) -> str:
     return valor
 
 
-def _normalizar_filtro(coluna_filtro: str, filtro: str) -> str:
-    """Traduz sigla de UF para o nome por extenso usado no lakehouse.
+# Colunas do lakehouse que guardam o estado pelo nome por extenso. A coluna se
+# chamava UF ate 2026-09-08 e passou a ESTADO quando o schema GOLD foi recriado;
+# aceitar os dois nomes evita quebrar de novo numa proxima renomeacao.
+COLUNAS_DE_ESTADO = frozenset({"UF", "ESTADO"})
 
-    A coluna UF de GOLD.INTERNACOES guarda "SAO PAULO", mas o contrato
-    exemplifica o filtro como "SP" -- e o resto do sistema (enderecos, alertas)
-    trabalha com sigla. Sem esta traducao o relatorio devolveria zero calado.
+
+def _normalizar_filtro(coluna_filtro: str, filtro: str) -> str:
+    """Traduz sigla de estado para o nome por extenso usado no lakehouse.
+
+    A coluna guarda "SAO PAULO", mas o contrato exemplifica o filtro como "SP"
+    -- e o resto do sistema (enderecos, alertas) trabalha com sigla. Sem esta
+    traducao o relatorio devolveria zero calado.
     """
-    if coluna_filtro.upper() != "UF":
+    if coluna_filtro.upper() not in COLUNAS_DE_ESTADO:
         return filtro
     return UF_PARA_NOME_LAKEHOUSE.get(filtro.strip().upper(), filtro)
 

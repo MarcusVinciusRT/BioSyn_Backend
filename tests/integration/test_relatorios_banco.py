@@ -52,7 +52,7 @@ def test_contagem_bate_com_a_consulta_direta(db, catalogo):
     direto = db.execute(
         text(
             "SELECT COUNT(*) FROM GOLD.INTERNACOES "
-            "WHERE UF = 'SAO PAULO' AND DATA_INTERNACAO BETWEEN :i AND :f"
+            "WHERE ESTADO = 'SAO PAULO' AND DATA_INTERNACAO BETWEEN :i AND :f"
         ),
         {"i": INICIO, "f": FIM},
     ).scalar_one()
@@ -62,8 +62,8 @@ def test_contagem_bate_com_a_consulta_direta(db, catalogo):
 
 
 def test_filtro_por_sigla_encontra_os_mesmos_dados_que_o_nome_por_extenso(db, catalogo):
-    """Regressão: a coluna UF guarda "SAO PAULO"; sem a tradução o filtro "SP"
-    devolveria zero em silêncio."""
+    """Regressão: a coluna de estado guarda "SAO PAULO"; sem a tradução o
+    filtro "SP" devolveria zero em silêncio."""
     metrica = catalogo["VW_INTERNACOES_TOTAL"]
     assert executar_metrica(db, metrica, "SP", INICIO, FIM) == executar_metrica(
         db, metrica, "SAO PAULO", INICIO, FIM
