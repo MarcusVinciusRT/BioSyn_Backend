@@ -69,21 +69,19 @@ services:
         value: "1800"
 
       # --- Alertas por e-mail ---
+      # O Render gratuito bloqueia as portas SMTP (25, 465, 587), entao aqui o
+      # e-mail sai pela API HTTPS da Brevo. Local (e em plano pago) o canal smtp
+      # continua funcionando -- a troca e so esta variavel.
       - key: ALERTA_CANAL
-        value: smtp
-      - key: SMTP_HOST
-        value: smtp.gmail.com
-      - key: SMTP_PORTA
-        value: "587"
-      - key: SMTP_SEGURANCA
-        value: starttls
-      - key: SMTP_USUARIO
+        value: brevo
+      # Brevo > SMTP & API > API Keys.
+      - key: BREVO_API_KEY
         sync: false
-      - key: SMTP_SENHA
+      # Precisa estar cadastrado em Brevo > Senders. Com Gmail, a Brevo troca o
+      # dominio de envio por @brevosend.com e mantem o nome de exibicao.
+      - key: BREVO_REMETENTE
         sync: false
-      - key: SMTP_REMETENTE
-        sync: false
-      - key: SMTP_REMETENTE_NOME
+      - key: BREVO_REMETENTE_NOME
         value: BioSyn
 
       # --- Relatorios e chat ---

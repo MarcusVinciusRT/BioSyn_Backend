@@ -77,7 +77,7 @@ Todas documentadas em `.env.example`. As que costumam dar trabalho:
 |---|---|
 | `WALLET_DIR` | Caminho relativo (`./wallet`) é resolvido a partir da raiz do projeto. |
 | `WALLET_PASSWORD` | **Obrigatório** se o wallet tiver senha — sem ele o driver trava pedindo a passphrase. |
-| `ALERTA_CANAL` | `console` (padrão, não envia nada) ou `smtp`. |
+| `ALERTA_CANAL` | `console` (padrão, não envia nada), `smtp` ou `brevo`. No Render gratuito, **só `brevo` funciona**. |
 | `SMTP_SENHA` | No Gmail, use uma **senha de app**, não a do login. Espaços são removidos. |
 | `SMTP_REMETENTE` | No Gmail e no Outlook, precisa ser igual ao `SMTP_USUARIO`. |
 | `LAKEHOUSE_MODO` | `fallback` agrega de `GOLD.INTERNACOES`; `views` usa as views de `METRICAS.nome_view`. |
@@ -128,8 +128,8 @@ só uma comodidade local, e o app roda sem ele existir.
 start command, health check e as variáveis. Preencha no painel as marcadas com
 `sync: false`:
 
-`DB_PASSWORD`, `WALLET_PASSWORD`, `SMTP_USUARIO`, `SMTP_SENHA`,
-`SMTP_REMETENTE` e `CORS_ORIGENS` (a origem do front, separada por vírgula).
+`DB_PASSWORD`, `WALLET_PASSWORD`, `BREVO_API_KEY`,
+`BREVO_REMETENTE` e `CORS_ORIGENS` (a origem do front, separada por vírgula).
 
 O `JWT_SECRET` o próprio Render gera — não reaproveite o local.
 
@@ -164,6 +164,14 @@ O padrão é comparado com `fullmatch`, então já fica ancorado nas duas pontas
 específico: `https://.*` libera a internet inteira.
 
 ### Detalhes que costumam derrubar o deploy
+
+- **O Render gratuito bloqueia as portas SMTP (25, 465 e 587).** O canal
+  `smtp` funciona local, mas no Render a conexão é cortada antes de sair e
+  `POST /alertas` responde `502 FALHA_ENVIO_ALERTA`. Lá, use
+  `ALERTA_CANAL=brevo`, que envia por HTTPS. A conta gratuita da Brevo manda
+  ~300 e-mails/dia; a chave sai de *SMTP & API → API Keys* e o remetente
+  precisa estar cadastrado em *Senders*. Com remetente Gmail, a Brevo troca
+  o domínio de envio por `@brevosend.com` e mantém o nome "BioSyn".
 
 - **`AMBIENTE=homolog`, não `prod`** — em `prod` a API fecha `/docs`, e é
   justamente por ali que o time de front consulta o contrato.
