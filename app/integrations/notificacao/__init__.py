@@ -81,6 +81,29 @@ def obter_canal() -> CanalDeAlerta:
             tamanho_lote=settings.alerta_tamanho_lote,
         )
 
+    if settings.alerta_canal == "brevo":
+        faltando = [
+            nome
+            for nome, valor in (
+                ("BREVO_API_KEY", settings.brevo_api_key),
+                ("BREVO_REMETENTE", settings.brevo_remetente),
+            )
+            if not valor
+        ]
+        if faltando:
+            raise RuntimeError(
+                "ALERTA_CANAL=brevo exige " + ", ".join(faltando) + " no ambiente."
+            )
+
+        from app.integrations.notificacao.brevo import CanalEmailBrevo
+
+        logger.info("canal de alertas: brevo (API HTTPS)")
+        return CanalEmailBrevo(
+            api_key=settings.brevo_api_key,  # type: ignore[arg-type]
+            remetente=settings.brevo_remetente,  # type: ignore[arg-type]
+            remetente_nome=settings.brevo_remetente_nome,
+        )
+
     logger.warning("canal de alertas: console -- nenhum e-mail sai de verdade")
     return CanalConsole()
 

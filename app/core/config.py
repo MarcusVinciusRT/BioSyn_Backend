@@ -57,8 +57,9 @@ class Settings(BaseSettings):
 
     # --- Canal de alertas (secao 5) ---
     # "console" -> apenas registra no log, nada e enviado
-    # "smtp"    -> envia e-mail de verdade por qualquer provedor SMTP
-    alerta_canal: Literal["console", "smtp"] = "console"
+    # "smtp"    -> envia por qualquer provedor SMTP (local e Render pago)
+    # "brevo"   -> envia pela API HTTPS da Brevo (Render gratuito, que bloqueia SMTP)
+    alerta_canal: Literal["console", "smtp", "brevo"] = "console"
     # Destinatarios por mensagem. Servidores de e-mail limitam quantos endereços
     # aceitam de uma vez; acima disso o lote inteiro e recusado.
     alerta_tamanho_lote: int = 50
@@ -70,6 +71,12 @@ class Settings(BaseSettings):
     smtp_remetente: str | None = None
     smtp_remetente_nome: str = "BioSyn"
     smtp_seguranca: Literal["starttls", "ssl", "nenhum"] = "starttls"
+
+    # Brevo: a chave sai de Brevo > SMTP & API > API Keys. O remetente precisa
+    # estar cadastrado em Brevo > Senders, Domains & Dedicated IPs.
+    brevo_api_key: str | None = None
+    brevo_remetente: str | None = None
+    brevo_remetente_nome: str = "BioSyn"
 
     # --- Relatorios ---
     # "views"    -> consulta as views nomeadas em METRICAS.nome_view
