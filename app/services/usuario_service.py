@@ -19,12 +19,14 @@ from app.repositories import usuario_repository
 from app.schemas.usuario import (
     CargoResumo,
     EnderecoEntrada,
+    EnderecoSaida,
     OrganizacaoResumo,
     PaginaUsuarios,
     UsuarioAtualizado,
     UsuarioAtualizar,
     UsuarioCriado,
     UsuarioCriar,
+    UsuarioDetalhe,
     UsuarioItem,
 )
 
@@ -70,6 +72,36 @@ def listar(
         pagina=pagina,
         tamanho=tamanho,
         itens=[_para_item(u) for u in usuarios],
+    )
+
+
+def obter(db: Session, id_usuario: int) -> UsuarioDetalhe:
+    """Usuario com endereco, para a tela de edicao.
+
+    Desativado responde 404, como no PUT e no DELETE: ele nao aparece em
+    listagem nenhuma e nao pode ser editado.
+    """
+    usuario = usuario_repository.buscar_detalhe_por_id(db, id_usuario)
+    if usuario is None or not usuario.ativo:
+        raise AppError(CodigoErro.USUARIO_NAO_ENCONTRADO)
+
+    return UsuarioDetalhe(
+        id_usuario=usuario.id_usuario,
+        nome_completo=usuario.nome_completo,
+        cpf=usuario.cpf,
+        email=usuario.email,
+        telefone=usuario.telefone,
+        nome=usuario.nome,
+        sobrenome=usuario.sobrenome,
+        is_admin=usuario.is_admin,
+        cargo_id=usuario.cargos_id_cargo,
+        organizacao_id=usuario.organizacoes_id_organizacao,
+        cargo=CargoResumo.model_validate(usuario.cargo),
+        organizacao=OrganizacaoResumo(
+            id_organizacao=usuario.organizacao.id_organizacao,
+            nome=usuario.organizacao.nome_organizacao,
+        ),
+        endereco=EnderecoSaida.model_validate(usuario.endereco),
     )
 
 

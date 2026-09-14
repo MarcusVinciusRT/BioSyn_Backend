@@ -264,3 +264,38 @@ def test_auditoria_registra_o_cadastro_sem_vazar_a_senha(db, referencias):
     ).scalars().all()
     assert len(linhas) == 1
     assert "$2b$" not in str(linhas[0])
+
+
+def test_detalhe_devolve_o_endereco_cadastrado(db, referencias):
+    criado = usuario_service.criar(db, _dados(referencias))
+    detalhe = usuario_service.obter(db, criado.id_usuario)
+
+    assert detalhe.endereco.logradouro == "de Teste"
+    assert detalhe.endereco.cep == "01001000"
+    assert detalhe.endereco.estado_uf == "SP"
+    assert detalhe.endereco.complemento is None
+    assert detalhe.cpf == CPF_TESTE
+
+
+def test_ida_e_volta_detalhe_para_put_sem_redigitar(db, referencias):
+    """O caso de uso do front: abrir a edição, mudar só o sobrenome e salvar.
+    O endereço tem de sobreviver intacto, sem ninguém redigitá-lo."""
+    criado = usuario_service.criar(db, _dados(referencias))
+    antes = usuario_service.obter(db, criado.id_usuario)
+
+    corpo = antes.model_dump()
+    corpo["sobrenome"] = "Usuario Editado"
+    usuario_service.atualizar(db, criado.id_usuario, UsuarioAtualizar(**corpo))
+
+    db.expire_all()
+    depois = usuario_service.obter(db, criado.id_usuario)
+    assert depois.nome_completo == "Pytest Usuario Editado"
+    assert depois.endereco == antes.endereco
+
+
+def test_detalhe_de_usuario_desativado_e_404(db, referencias):
+    criado = usuario_service.criar(db, _dados(referencias))
+    usuario_service.desativar(db, criado.id_usuario, id_solicitante=999999)
+    with pytest.raises(AppError) as erro:
+        usuario_service.obter(db, criado.id_usuario)
+    assert erro.value.codigo == CodigoErro.USUARIO_NAO_ENCONTRADO

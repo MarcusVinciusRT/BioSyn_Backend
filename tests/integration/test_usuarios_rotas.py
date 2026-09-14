@@ -145,3 +145,77 @@ def test_auto_desativacao_recebe_o_id_de_quem_pediu(cliente, monkeypatch):
     )
     cliente.delete("/api/v1/usuarios/99", headers=_autenticar(monkeypatch))
     assert capturado == {"alvo": 99, "solicitante": 42}
+
+
+# --- GET /usuarios/{id} ----------------------------------------------------
+
+def _detalhe_exemplo():
+    from app.schemas.usuario import UsuarioDetalhe
+
+    return UsuarioDetalhe(
+        id_usuario=43, nome_completo="Carlos Oliveira", cpf="12345678901",
+        email="carlos.oliveira@saude.gov.br", telefone="21998877665",
+        nome="Carlos", sobrenome="Oliveira", is_admin=False,
+        cargo_id=5, organizacao_id=2,
+        cargo={"id_cargo": 5, "nome_cargo": "Técnico Hospitalar"},
+        organizacao={"id_organizacao": 2, "nome": "Hospital das Clínicas - RJ"},
+        endereco={
+            "tipo_logradouro": "Rua", "logradouro": "das Laranjeiras", "numero": "180",
+            "cep": "22240003", "estado_uf": "RJ", "cidade": "Rio de Janeiro",
+            "complemento": "Bloco B, sala 12",
+        },
+    )
+
+
+def test_detalhe_traz_o_endereco_com_os_campos_do_put(cliente, monkeypatch):
+    monkeypatch.setattr(usuario_service, "obter", lambda db, i: _detalhe_exemplo())
+    r = cliente.get("/api/v1/usuarios/43", headers=_autenticar(monkeypatch))
+    assert r.status_code == 200
+    assert set(r.json()["endereco"]) == {
+        "tipo_logradouro", "logradouro", "numero", "cep",
+        "estado_uf", "cidade", "complemento",
+    }
+
+
+def test_detalhe_serve_de_corpo_para_o_put(cliente, monkeypatch):
+    """O objetivo da rota: o front pega o detalhe, altera e manda de volta no
+    PUT sem redigitar o endereço. Os campos precisam casar com o schema."""
+    from app.schemas.usuario import UsuarioAtualizar
+
+    monkeypatch.setattr(usuario_service, "obter", lambda db, i: _detalhe_exemplo())
+    detalhe = cliente.get("/api/v1/usuarios/43", headers=_autenticar(monkeypatch)).json()
+    corpo = UsuarioAtualizar(**detalhe)
+    assert corpo.endereco.cidade == "Rio de Janeiro"
+    assert corpo.cargo_id == 5 and corpo.organizacao_id == 2
+
+
+def test_detalhe_nunca_devolve_a_senha(cliente, monkeypatch):
+    monkeypatch.setattr(usuario_service, "obter", lambda db, i: _detalhe_exemplo())
+    r = cliente.get("/api/v1/usuarios/43", headers=_autenticar(monkeypatch))
+    assert "senha" not in r.json()
+    assert "senha" not in r.text
+
+
+def test_detalhe_de_usuario_inexistente_e_404(cliente, monkeypatch):
+    def nao_achou(db, i):
+        raise AppError(CodigoErro.USUARIO_NAO_ENCONTRADO)
+
+    monkeypatch.setattr(usuario_service, "obter", nao_achou)
+    r = cliente.get("/api/v1/usuarios/999", headers=_autenticar(monkeypatch))
+    assert r.status_code == 404
+    assert r.json()["erro"]["codigo"] == "USUARIO_NAO_ENCONTRADO"
+
+
+@pytest.mark.parametrize(("admin", "status_esperado"), [(False, 403)])
+def test_detalhe_exige_administrador(cliente, monkeypatch, admin, status_esperado):
+    r = cliente.get("/api/v1/usuarios/43", headers=_autenticar(monkeypatch, admin=admin))
+    assert r.status_code == status_esperado
+
+
+def test_detalhe_exige_token(cliente):
+    assert cliente.get("/api/v1/usuarios/43").status_code == 401
+
+
+def test_detalhe_com_id_invalido_e_validacao(cliente, monkeypatch):
+    r = cliente.get("/api/v1/usuarios/0", headers=_autenticar(monkeypatch))
+    assert r.status_code == 422
