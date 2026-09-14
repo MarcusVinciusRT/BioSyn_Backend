@@ -76,6 +76,19 @@ def buscar_por_id(db: Session, id_usuario: int) -> Usuario | None:
     return db.execute(consulta).unique().scalar_one_or_none()
 
 
+def buscar_detalhe_por_id(db: Session, id_usuario: int) -> Usuario | None:
+    """Usuario com cargo, organizacao e endereco, para a tela de edicao.
+
+    Consulta separada de buscar_por_id de proposito: aquela roda em toda
+    requisicao autenticada (validacao do token) e nao deve pagar o join do
+    endereco.
+    """
+    consulta = _com_relacoes(
+        select(Usuario).where(Usuario.id_usuario == id_usuario)
+    ).options(joinedload(Usuario.endereco))
+    return db.execute(consulta).unique().scalar_one_or_none()
+
+
 def buscar_conflito_de_unicidade(
     db: Session,
     cpf: str | None,

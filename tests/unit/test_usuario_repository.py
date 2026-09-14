@@ -70,3 +70,24 @@ def test_busca_de_destinatarios_junta_endereco_e_filtra_usuario_ativo():
     assert "JOIN enderecos" in sql
     assert "usuarios.ativo = 1" in sql
     assert "enderecos.estado_uf = 'SP'" in sql
+
+
+def test_detalhe_carrega_o_endereco_no_mesmo_select():
+    """lazy="raise" no model: sem o joinedload, ler usuario.endereco estouraria."""
+    from sqlalchemy.orm import joinedload
+
+    from app.models import Usuario as U
+
+    consulta = repo._com_relacoes(select(U).where(U.id_usuario == 1)).options(
+        joinedload(U.endereco)
+    )
+    sql = _sql(consulta)
+    assert "JOIN enderecos" in sql
+    assert "JOIN cargos" in sql and "JOIN organizacoes" in sql
+
+
+def test_busca_por_id_do_token_continua_sem_join_de_endereco():
+    """buscar_por_id roda em toda requisição autenticada: não pode ganhar o join."""
+    import inspect
+
+    assert "endereco" not in inspect.getsource(repo.buscar_por_id)

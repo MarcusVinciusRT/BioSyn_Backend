@@ -194,6 +194,7 @@ O documento original é a referência; onde nos afastamos dele, foi por um motiv
 |---|---|
 | Alertas por **e-mail**, não SMS | Não existe SMS gratuito para números brasileiros (A2P é regulado e exige provedor contratado). Os destinatários são os próprios usuários cadastrados, para quem e-mail é o canal natural. Nem a tabela nem a rota mudaram. |
 | `FALHA_ENVIO_ALERTA` no lugar de `FALHA_GATEWAY_SMS` | Um código dizendo "SMS" num sistema que manda e-mail engana quem for depurar. |
+| `GET /usuarios/{id}`, fora do contrato | Pedido do front, para não redigitar o endereço ao editar. Rota separada em vez de pôr o endereço na listagem, que carregaria o endereço de todo mundo só para montar a tabela. Os campos editáveis têm os mesmos nomes do corpo do `PUT`. |
 | Consulta ao banco a cada requisição autenticada | O documento sugere confiar só no token. Sem a consulta, um usuário desativado continuaria operando com privilégio de administrador até o token vencer — até 30 minutos. |
 | Códigos `METODO_NAO_PERMITIDO` (405) e `MUITAS_TENTATIVAS` (429) | Não constam na tabela de status do contrato, mas o framework emite 405 de qualquer forma, e sem o 429 o login fica aberto a força bruta. |
 | `linhas_retornadas` via `COUNT(*)` sobre o SQL gerado | O contrato pede o campo, mas `showsql` e `narrate` não devolvem contagem. Envolver o SQL em `COUNT(*)` dá o número real sem gastar uma terceira chamada ao modelo. |

@@ -12,6 +12,7 @@ from app.schemas.usuario import (
     UsuarioAtualizar,
     UsuarioCriado,
     UsuarioCriar,
+    UsuarioDetalhe,
 )
 from app.services import usuario_service
 
@@ -34,6 +35,24 @@ def listar(
 ) -> PaginaUsuarios:
     """Acesso: somente administrador. Apenas usuários ativos são retornados."""
     return usuario_service.listar(db, busca, pagina, tamanho)
+
+
+@router.get(
+    "/{id_usuario}",
+    response_model=UsuarioDetalhe,
+    summary="Detalhar usuário (com endereço)",
+)
+def obter(
+    db: SessaoDep,
+    _: AdminDep,
+    id_usuario: int = Path(ge=1),
+) -> UsuarioDetalhe:
+    """Acesso: somente administrador.
+
+    Devolve o usuário completo, com endereço, para pré-preencher o formulário
+    de edição. Os campos editáveis têm os mesmos nomes do corpo do PUT.
+    """
+    return usuario_service.obter(db, id_usuario)
 
 
 @router.post(

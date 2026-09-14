@@ -183,6 +183,44 @@ class UsuarioItem(BaseModel):
     organizacao: OrganizacaoResumo
 
 
+class EnderecoSaida(BaseModel):
+    """Mesmos campos do endereco que o POST e o PUT recebem."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    tipo_logradouro: str
+    logradouro: str
+    numero: str
+    cep: str
+    estado_uf: str
+    cidade: str
+    complemento: str | None
+
+
+class UsuarioDetalhe(BaseModel):
+    """Usuario completo, para pre-preencher o formulario de edicao.
+
+    Os campos editaveis tem os mesmos nomes do corpo do PUT (cargo_id,
+    organizacao_id, endereco...), entao o front pode alterar este objeto e
+    envia-lo de volta. cargo e organizacao vem tambem como objeto, para exibir
+    o nome sem outra chamada. A senha nunca sai.
+    """
+
+    id_usuario: int
+    nome_completo: str
+    cpf: str
+    email: str
+    telefone: str
+    nome: str
+    sobrenome: str
+    is_admin: bool
+    cargo_id: int
+    organizacao_id: int
+    cargo: CargoResumo
+    organizacao: OrganizacaoResumo
+    endereco: EnderecoSaida
+
+
 class PaginaUsuarios(BaseModel):
     total: int
     pagina: int
