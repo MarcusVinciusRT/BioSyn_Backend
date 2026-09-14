@@ -56,6 +56,9 @@ class CodigoErro(StrEnum):
 
     # --- Chat com IA (secao 9) ---
     PERGUNTA_VAZIA = "PERGUNTA_VAZIA"
+    # CONSULTA_NAO_PERMITIDA e FALHA_CONSULTA nao sao mais emitidos: o chat so
+    # usa o narrate, sem validar nem executar SQL do nosso lado. Ficam no
+    # catalogo porque o contrato os documenta.
     CONSULTA_NAO_PERMITIDA = "CONSULTA_NAO_PERMITIDA"
     FALHA_MODELO = "FALHA_MODELO"
     FALHA_CONSULTA = "FALHA_CONSULTA"

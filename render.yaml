@@ -87,10 +87,13 @@ services:
       # --- Relatorios e chat ---
       - key: LAKEHOUSE_MODO
         value: fallback
+      # GOOGLE_PROFILE (Gemini). O APP_PROFILE (Cohere na OCI) trava sem
+      # responder. O Gemini responde o narrate em 25 a 45s (testado em
+      # 2026-09-14), por isso o timeout com folga.
       - key: AI_PROFILE_NAME
-        value: APP_PROFILE
+        value: GOOGLE_PROFILE
       - key: AI_TIMEOUT_SEGUNDOS
-        value: "45"
+        value: "90"
 
       # --- CORS ---
       # Vale so para navegador: Postman, curl e o /docs nao passam por aqui.

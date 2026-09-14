@@ -213,11 +213,10 @@ O documento original é a referência; onde nos afastamos dele, foi por um motiv
   então uma renomeação dessas se resolve com um `UPDATE`, sem mexer em código.
   Surgiram também `GOLD.LEITOS` e `GOLD.OBITOS`, ainda não usadas por métrica
   nenhuma.
-- **Select AI indisponível no ambiente atual.** O profile `APP_PROFILE` está
-  correto (provider OCI, modelo `cohere.command-a-03-2025`, região
-  `sa-saopaulo-1`), mas a chamada trava sem retornar erro — falha também no SQL
-  Developer. Depende de credencial/política IAM do lado do ADMIN do ADB. A rota
-  responde `502 FALHA_MODELO` ao estourar `AI_TIMEOUT_SEGUNDOS`.
+- **O chat usa o `GOOGLE_PROFILE`** (Gemini). O `APP_PROFILE` (Cohere na OCI)
+  trava sem responder. O chat faz uma única chamada `narrate`, que leva
+  de 25 a 45s (`AI_TIMEOUT_SEGUNDOS=90`); `sql_executado` e `linhas_retornadas` saem sempre `null`. Se o
+  profile mudar de novo, troque `AI_PROFILE_NAME` no painel do Render.
 - **As views de métrica não existem.** O modo `fallback` agrega direto de
   `GOLD.INTERNACOES`. Quando as views subirem, troque `LAKEHOUSE_MODO=views`:
   a chave `nome_view` é a mesma nos dois modos.
