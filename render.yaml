@@ -98,7 +98,9 @@ services:
       # e a maquina do dev -- por isso localhost ja resolve no comeco.
       # Quando o front publicar, acrescente a URL dele, separada por virgula.
       - key: CORS_ORIGENS
-        value: http://localhost:5173,http://localhost:3000
+        # Front publicado na Vercel em 2026-09-14. O localhost fica: o time
+        # continua desenvolvendo local contra esta API.
+        value: http://localhost:5173,http://localhost:3000,https://biosync-front.vercel.app
       # Opcional: padrao para as URLs de preview (Vercel/Netlify criam uma nova
       # por PR). Preencha no painel quando souber o nome do projeto do front.
       # Ex: https://biosyn-front(-git-[a-z0-9-]+)?\.vercel\.app
