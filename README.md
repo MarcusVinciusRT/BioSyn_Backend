@@ -159,6 +159,11 @@ nova a cada preview, e uma lista fixa quebraria em todo PR do front.
 CORS_ORIGENS_REGEX=https://biosyn-front(-git-[a-z0-9-]+)?\.vercel\.app
 ```
 
+**Preflight respondendo `400` com o corpo `Disallowed CORS origin`** não é
+validação de cabeçalho nem outro middleware: é o próprio `CORSMiddleware`
+recusando uma origem fora da lista. A correção é acrescentar a origem em
+`CORS_ORIGENS`, sem mexer em código.
+
 O padrão é comparado com `fullmatch`, então já fica ancorado nas duas pontas —
 `https://biosyn-front.vercel.app.atacante.com` não passa. Ainda assim, seja
 específico: `https://.*` libera a internet inteira.
