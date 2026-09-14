@@ -18,8 +18,8 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     resposta: str
-    # Devolvido de proposito: permite conferir se o modelo entendeu a pergunta e
-    # demonstra o mecanismo. Se a interface nao exibir, pode sair sem impacto.
-    sql_executado: str
-    linhas_retornadas: int | None
+    # Sempre nulos: o SQL gerado deixou de ser pedido ao modelo. Os campos ficam
+    # na resposta para o front, que ja os le, nao quebrar.
+    sql_executado: str | None = None
+    linhas_retornadas: int | None = None
     tempo_ms: int

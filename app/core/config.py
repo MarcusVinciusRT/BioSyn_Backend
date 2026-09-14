@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     login_janela_segundos: int = 300
 
     # --- Select AI ---
-    ai_profile_name: str = "APP_PROFILE"
+    ai_profile_name: str = "GOOGLE_PROFILE"
     ai_timeout_segundos: int = 60
 
     # --- Canal de alertas (secao 5) ---
